@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "targetCommit": "710cccfd8fd26b395f8e3470419852d76de80967",
+  "measuredSlice": "examples/financial-research-agent/manager.ts",
+  "evidenceBoundary": "synthetic-orchestration",
+  "surfaces": [
+    {
+      "id": "tool_selection_arguments",
+      "status": "blocked",
+      "reason": "The writer exposes specialist agents as tools and the search agent exposes hosted web search, but selection and argument quality are model decisions. The frozen example pins GPT-5.4 and offers no example-level deterministic decision injector. A fake response would test SDK mechanics, not this example's model quality.",
+      "sourcePaths": [
+        "examples/financial-research-agent/manager.ts:21-41",
+        "examples/financial-research-agent/agents.ts:65-76",
+        "examples/financial-research-agent/agents.ts:102-125"
+      ]
+    },
+    {
+      "id": "malformed_tool_result",
+      "status": "applicable",
+      "reason": "Search-agent exceptions are converted to null and filtered before the writer. The manager behavior when some or all search results are unavailable has a deterministic observable oracle.",
+      "sourcePaths": [
+        "examples/financial-research-agent/manager.ts:80-108",
+        "examples/financial-research-agent/manager.ts:43-49"
+      ]
+    },
+    {
+      "id": "timeout_retry",
+      "status": "applicable",
+      "reason": "The example has no manager-level timeout, so timeout behavior is unmeasured. Its explicit semantic retry loop permits two report revisions and is directly measurable, including exhaustion.",
+      "sourcePaths": [
+        "examples/financial-research-agent/manager.ts:13",
+        "examples/financial-research-agent/manager.ts:43-60"
+      ]
+    },
+    {
+      "id": "state_memory_leakage",
+      "status": "not_applicable",
+      "reason": "The example performs one query per manager instance and does not use SDK sessions, persisted memory, or cross-run mutable application state in the measured slice.",
+      "sourcePaths": [
+        "examples/financial-research-agent/manager.ts:43-69"
+      ]
+    },
+    {
+      "id": "multi_turn_consistency",
+      "status": "not_applicable",
+      "reason": "The financial research example is a single-query pipeline. Revision is an internal bounded workflow, not a user-facing multi-turn conversation or resumed session.",
+      "sourcePaths": [
+        "examples/financial-research-agent/main.ts",
+        "examples/financial-research-agent/manager.ts:43-69"
+      ]
+    },
+    {
+      "id": "structured_output",
+      "status": "applicable",
+      "reason": "Planner, report, analyst, and verifier outputs use explicit Zod schemas. At the manager boundary, the verifier's boolean and issues string control revision and terminal behavior.",
+      "sourcePaths": [
+        "examples/financial-research-agent/agents.ts:9-19",
+        "examples/financial-research-agent/agents.ts:28-52",
+        "examples/financial-research-agent/agents.ts:84-100",
+        "examples/financial-research-agent/agents.ts:110-125"
+      ]
+    },
+    {
+      "id": "graceful_failure",
+      "status": "applicable",
+      "reason": "The manager converts search exceptions into missing results and always reaches its terminal report block after the bounded verification loop unless another method throws. Whether unusable evidence or exhausted verification stops publication is directly observable.",
+      "sourcePaths": [
+        "examples/financial-research-agent/manager.ts:43-69",
+        "examples/financial-research-agent/manager.ts:100-108"
+      ]
+    }
+  ]
+}
+

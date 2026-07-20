@@ -1,0 +1,12 @@
+.work/
+node_modules/
+coverage/
+dist/
+*.log
+.DS_Store
+
+# Regenerated ephemeral teardown runs. Canonical curated evidence is
+# evidence/runs/baseline-002 and evidence/runs/remediation-001 (allowlisted);
+# these reproduction outputs are raw and must not be tracked.
+evidence/runs/baseline-001/
+evidence/runs/remediation-reproduction-*/

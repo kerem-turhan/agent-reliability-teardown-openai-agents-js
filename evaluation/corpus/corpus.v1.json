@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "corpusVersion": "1.0.0",
+  "targetCommit": "710cccfd8fd26b395f8e3470419852d76de80967",
+  "targetSlice": "examples/financial-research-agent",
+  "evidenceBoundary": "synthetic-orchestration",
+  "networkPolicy": "denied",
+  "cases": [
+    {
+      "id": "FR-001",
+      "title": "Parallel search preserves plan order",
+      "surface": "malformed_tool_result",
+      "entrypoint": "performSearches",
+      "setup": {
+        "searchPlan": ["alpha", "beta"],
+        "searchOutcomes": {
+          "alpha": { "kind": "success", "value": "Alpha source", "delayMs": 15 },
+          "beta": { "kind": "success", "value": "Beta source", "delayMs": 0 }
+        }
+      },
+      "oracle": {
+        "outcome": "success",
+        "returnedSearchResults": ["Alpha source", "Beta source"]
+      },
+      "evidenceLevel": "synthetic-orchestration",
+      "allowedVariance": "none",
+      "isolation": "fake search boundary, fixed timers, no network"
+    },
+    {
+      "id": "FR-002",
+      "title": "Partial search failure retains usable evidence",
+      "surface": "malformed_tool_result",
+      "entrypoint": "performSearches",
+      "setup": {
+        "searchPlan": ["failed", "usable"],
+        "searchOutcomes": {
+          "failed": { "kind": "failure", "message": "synthetic search failure", "delayMs": 0 },
+          "usable": { "kind": "success", "value": "Usable source", "delayMs": 0 }
+        }
+      },
+      "oracle": {
+        "outcome": "success",
+        "returnedSearchResults": ["Usable source"]
+      },
+      "evidenceLevel": "synthetic-orchestration",
+      "allowedVariance": "none",
+      "isolation": "fake search boundary, no model, no network"
+    },
+    {
+      "id": "FR-003",
+      "title": "Complete search failure stops report generation",
+      "surface": "graceful_failure",
+      "entrypoint": "run",
+      "setup": {
+        "searchPlan": ["failed-a", "failed-b"],
+        "searchOutcomes": {
+          "failed-a": { "kind": "failure", "message": "synthetic search failure A", "delayMs": 0 },
+          "failed-b": { "kind": "failure", "message": "synthetic search failure B", "delayMs": 0 }
+        },
+        "verificationSequence": [{ "verified": true, "issues": "" }]
+      },
+      "oracle": {
+        "outcome": "controlled_error",
+        "writerCalls": 0,
+        "terminalReportEmitted": false
+      },
+      "evidenceLevel": "synthetic-orchestration",
+      "allowedVariance": "error wording may differ; control flow may not call writer or emit a report",
+      "isolation": "real manager run and aggregation, fake agent boundaries, no network"
+    },
+    {
+      "id": "FR-004",
+      "title": "Verified initial report completes without revision",
+      "surface": "structured_output",
+      "entrypoint": "run",
+      "setup": {
+        "fixedSearchResults": ["Primary source summary"],
+        "verificationSequence": [{ "verified": true, "issues": "" }]
+      },
+      "oracle": {
+        "outcome": "success",
+        "verificationCalls": 1,
+        "revisionCalls": 0,
+        "terminalReportEmitted": true
+      },
+      "evidenceLevel": "synthetic-orchestration",
+      "allowedVariance": "none",
+      "isolation": "real manager retry/output path, fake agent boundaries, no network"
+    },
+    {
+      "id": "FR-005",
+      "title": "Verification can pass on the final permitted retry",
+      "surface": "timeout_retry",
+      "entrypoint": "run",
+      "setup": {
+        "fixedSearchResults": ["Primary source summary"],
+        "verificationSequence": [
+          { "verified": false, "issues": "Issue one" },
+          { "verified": false, "issues": "Issue two" },
+          { "verified": true, "issues": "" }
+        ]
+      },
+      "oracle": {
+        "outcome": "success",
+        "verificationCalls": 3,
+        "revisionCalls": 2,
+        "terminalReportEmitted": true
+      },
+      "evidenceLevel": "synthetic-orchestration",
+      "allowedVariance": "none",
+      "isolation": "real bounded retry loop, fake agent boundaries, no network"
+    },
+    {
+      "id": "FR-006",
+      "title": "Exhausted verification stops unverified report emission",
+      "surface": "graceful_failure",
+      "entrypoint": "run",
+      "setup": {
+        "fixedSearchResults": ["Primary source summary"],
+        "verificationSequence": [
+          { "verified": false, "issues": "Issue one" },
+          { "verified": false, "issues": "Issue two" },
+          { "verified": false, "issues": "Issue three" }
+        ]
+      },
+      "oracle": {
+        "outcome": "controlled_error",
+        "verificationCalls": 3,
+        "revisionCalls": 2,
+        "terminalReportEmitted": false
+      },
+      "evidenceLevel": "synthetic-orchestration",
+      "allowedVariance": "error wording may differ; control flow must not emit the unverified report as final",
+      "isolation": "real bounded retry/output path, fake agent boundaries, no network"
+    }
+  ]
+}
+

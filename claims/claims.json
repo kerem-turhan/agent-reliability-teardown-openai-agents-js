@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "claims": [
+    {
+      "id": "C-001",
+      "claim": "The target is openai/openai-agents-js at commit 710cccfd8fd26b395f8e3470419852d76de80967 under MIT.",
+      "scope": "frozen repository provenance",
+      "evidenceLevel": "official-source-metadata",
+      "evidencePaths": ["research/target-freeze.json", "THIRD_PARTY_NOTICES.md"],
+      "command": "npm run freeze:check",
+      "limitation": "Applies only to the recorded commit and license bytes."
+    },
+    {
+      "id": "C-002",
+      "claim": "Five active candidates were scored and the selected example scored 100/100 under the precommitted rubric.",
+      "scope": "candidate snapshot on 2026-07-20",
+      "evidenceLevel": "official-source-metadata",
+      "evidencePaths": ["research/candidates.json", "research/candidates.md"],
+      "command": "npm run candidates:check",
+      "limitation": "GitHub activity and adoption counts are a dated snapshot."
+    },
+    {
+      "id": "C-003",
+      "claim": "Corpus v1.0.0 contains six synthetic-orchestration cases at the frozen SHA-256.",
+      "scope": "frozen corpus",
+      "evidenceLevel": "synthetic-orchestration",
+      "evidencePaths": ["evaluation/corpus/corpus.v1.json", "evaluation/corpus/freeze.json"],
+      "command": "npm run corpus:validate && npm run corpus:hash -- --check",
+      "limitation": "The corpus measures only applicable manager orchestration surfaces."
+    },
+    {
+      "id": "C-004",
+      "claim": "Canonical baseline-002 completed 4 pass, 2 fail, and 0 harness errors.",
+      "scope": "frozen target and corpus",
+      "evidenceLevel": "synthetic-orchestration",
+      "evidencePaths": ["evidence/runs/baseline-002/results.json"],
+      "command": "npm run evidence:validate",
+      "limitation": "This is not model-quality or production-incidence evidence."
+    },
+    {
+      "id": "C-005",
+      "claim": "With all searches failed, the manager called the writer once and emitted a report.",
+      "scope": "FR-003 at the frozen manager boundary",
+      "evidenceLevel": "synthetic-orchestration",
+      "evidencePaths": ["evidence/runs/baseline-002/results.json", "findings/F-001.md"],
+      "command": "npm run teardown:baseline",
+      "limitation": "Does not show real-model fabrication or frequency."
+    },
+    {
+      "id": "C-006",
+      "claim": "After three negative verifier decisions and two revisions, the manager emitted the report.",
+      "scope": "FR-006 at the frozen manager boundary",
+      "evidenceLevel": "synthetic-orchestration",
+      "evidencePaths": ["evidence/runs/baseline-002/results.json", "findings/F-002.md"],
+      "command": "npm run teardown:baseline",
+      "limitation": "Does not establish verifier correctness or user harm."
+    },
+    {
+      "id": "C-007",
+      "claim": "The unchanged corpus passed 6/6 with the declared remediation patch.",
+      "scope": "frozen target plus declared patch",
+      "evidenceLevel": "synthetic-orchestration",
+      "evidencePaths": ["evidence/runs/remediation-001/results.json", "evidence/remediation-summary.md"],
+      "command": "npm run teardown:verify-fix",
+      "limitation": "Proves only the tested manager control-flow oracles."
+    },
+    {
+      "id": "C-008",
+      "claim": "The remediation changes one upstream file and has SHA-256 129fc9c3fb37456fd9463ea856a7043a71df834f24b9f3e7ea1588ef17428997.",
+      "scope": "declared local patch",
+      "evidenceLevel": "static-analysis",
+      "evidencePaths": ["patches/manifest.json", "patches/openai-agents-js-financial-research-fail-closed.patch"],
+      "command": "npm run patch:check",
+      "limitation": "The patch was not submitted upstream."
+    },
+    {
+      "id": "C-009",
+      "claim": "With the patch applied, the upstream focused tests passed 2/2 and the example TypeScript check passed after workspace dependency build.",
+      "scope": "local frozen checkout plus declared patch",
+      "evidenceLevel": "observed-runtime",
+      "evidencePaths": ["evidence/remediation-summary.md"],
+      "command": "npm run teardown:verify-fix",
+      "limitation": "This is a focused compatibility check, not the complete upstream test suite."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-07-20T03:00:21+03:00",
+  "freezeCommit": "bd1856736aacadf2849f9aff9a10d6c43c57dd87",
+  "resultsExecutedBeforeFreeze": false,
+  "repository": "openai/openai-agents-js",
+  "repositoryUrl": "https://github.com/openai/openai-agents-js",
+  "targetSlice": "examples/financial-research-agent",
+  "commitSha": "710cccfd8fd26b395f8e3470419852d76de80967",
+  "commitUrl": "https://github.com/openai/openai-agents-js/commit/710cccfd8fd26b395f8e3470419852d76de80967",
+  "gitTree": "be99e83816cd30e4cf6cea9e4d521033d25a36bb",
+  "localCheckout": ".work/targets/openai-agents-js",
+  "license": {
+    "spdx": "MIT",
+    "name": "MIT License",
+    "path": "LICENSE",
+    "url": "https://github.com/openai/openai-agents-js/blob/710cccfd8fd26b395f8e3470419852d76de80967/LICENSE",
+    "sha256": "969d1c8178ad9a1ae2ff1e67534151d4cc58a2626274b272f918995bccd3a6ad",
+    "copyright": "Copyright (c) 2025 OpenAI"
+  },
+  "selectionRecord": "research/candidates.json",
+  "selectionScore": 100,
+  "resultBoundary": "No corpus case, baseline, or remediation result was executed before this freeze."
+}

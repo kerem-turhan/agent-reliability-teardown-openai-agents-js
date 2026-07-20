@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "outcome": "meaningful_findings",
+  "targetCommit": "710cccfd8fd26b395f8e3470419852d76de80967",
+  "corpusSha256": "843f53f24466a2bf761d2cd73eacd205dd0c5527a986b775f9732044e5009dc8",
+  "baselineRunId": "baseline-002",
+  "remediationRunId": "remediation-001",
+  "baselineTotals": { "pass": 4, "fail": 2, "harnessError": 0 },
+  "remediationTotals": { "pass": 6, "fail": 0, "harnessError": 0 },
+  "patch": {
+    "path": "patches/openai-agents-js-financial-research-fail-closed.patch",
+    "sha256": "129fc9c3fb37456fd9463ea856a7043a71df834f24b9f3e7ea1588ef17428997",
+    "changedPaths": ["examples/financial-research-agent/manager.ts"]
+  },
+  "findings": [
+    {
+      "id": "F-001",
+      "title": "The writer runs after every search fails",
+      "caseId": "FR-003",
+      "severityWithinHarness": "medium",
+      "evidenceLevel": "synthetic-orchestration",
+      "baselineStatus": "fail",
+      "remediationStatus": "pass",
+      "rootCausePaths": [
+        "examples/financial-research-agent/manager.ts:46-49",
+        "examples/financial-research-agent/manager.ts:100-107"
+      ],
+      "demonstratedImpact": "When every deterministic search boundary returns failure, the real manager passes an empty result set to the writer and emits its report instead of stopping.",
+      "limitation": "This does not show that a real model fabricates facts, how often search fails in production, or the quality of any financial report."
+    },
+    {
+      "id": "F-002",
+      "title": "The manager emits a report after verification retry exhaustion",
+      "caseId": "FR-006",
+      "severityWithinHarness": "medium",
+      "evidenceLevel": "synthetic-orchestration",
+      "baselineStatus": "fail",
+      "remediationStatus": "pass",
+      "rootCausePaths": [
+        "examples/financial-research-agent/manager.ts:49-68"
+      ],
+      "demonstratedImpact": "When the verifier remains negative on the initial report and both permitted revisions, the real manager prints that report and the negative verification object as terminal output.",
+      "limitation": "This does not establish that real verifier decisions are correct, that users treat console output as approved advice, or any production incidence."
+    }
+  ]
+}
+

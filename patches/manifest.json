@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "targetRepository": "openai/openai-agents-js",
+  "targetCommit": "710cccfd8fd26b395f8e3470419852d76de80967",
+  "license": "MIT",
+  "patchPath": "patches/openai-agents-js-financial-research-fail-closed.patch",
+  "patchSha256": "129fc9c3fb37456fd9463ea856a7043a71df834f24b9f3e7ea1588ef17428997",
+  "changedPaths": [
+    "examples/financial-research-agent/manager.ts"
+  ],
+  "purpose": "Stop report generation when no usable search evidence exists or verification remains negative after the bounded revision loop.",
+  "upstreamContact": "none"
+}
+

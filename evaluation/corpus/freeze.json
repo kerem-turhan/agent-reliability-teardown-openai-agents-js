@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-07-20T03:04:11+03:00",
+  "freezeCommit": "0713f0fa4e9b451ee528e670f6b9cb4f21cb1a49",
+  "algorithm": "sha256",
+  "corpusPath": "evaluation/corpus/corpus.v1.json",
+  "corpusSha256": "843f53f24466a2bf761d2cd73eacd205dd0c5527a986b775f9732044e5009dc8",
+  "caseCount": 6,
+  "resultsExecutedBeforeFreeze": false
+}

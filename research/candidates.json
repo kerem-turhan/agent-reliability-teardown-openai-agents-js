@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-07-20T02:57:00+03:00",
+  "sourcePolicy": "Official GitHub repository, file, commit, issue, release, and API metadata only.",
+  "rubric": {
+    "weights": {
+      "customerRelevance": 25,
+      "noSecretReproducibility": 25,
+      "measurableFailureSurface": 20,
+      "maintenanceAdoption": 15,
+      "licenseClarity": 10,
+      "overnightScopeability": 5
+    },
+    "minimumTotal": 70,
+    "minimumCustomerRelevance": 18
+  },
+  "selectedCandidateId": "openai-financial-research-example",
+  "candidates": [
+    {
+      "id": "openai-financial-research-example",
+      "repository": "openai/openai-agents-js",
+      "targetSlice": "examples/financial-research-agent",
+      "commitSha": "710cccfd8fd26b395f8e3470419852d76de80967",
+      "language": "TypeScript",
+      "license": "MIT",
+      "archived": false,
+      "applicationOrFirstPartyExample": true,
+      "measuredPathNeedsPaidApiOrSecret": false,
+      "latestMaintainerActivityAt": "2026-07-19T04:02:55Z",
+      "latestActivityActorType": "User",
+      "githubSignals": { "stars": 3429, "forks": 864, "latestRelease": "v0.13.5" },
+      "scores": {
+        "customerRelevance": 25,
+        "noSecretReproducibility": 25,
+        "measurableFailureSurface": 20,
+        "maintenanceAdoption": 15,
+        "licenseClarity": 10,
+        "overnightScopeability": 5
+      },
+      "rationales": {
+        "customerRelevance": "The first-party runnable example is a real multi-agent financial research workflow with planner, parallel search, writer, specialist tools, verifier, and bounded revisions.",
+        "noSecretReproducibility": "The official manager test subclasses the orchestration methods and exercises the manager deterministically without invoking a hosted model; the measured manager boundary therefore needs no paid API or secret.",
+        "measurableFailureSurface": "The manager exposes automatable search-tool failure, parallel result aggregation, structured verifier output, retry exhaustion, and graceful-failure outcomes with explicit call/count oracles.",
+        "maintenanceAdoption": "The repository is non-archived, had a maintainer commit one day before retrieval, published v0.13.5 three days before retrieval, and shows 3,429 stars and 864 forks in GitHub metadata.",
+        "licenseClarity": "GitHub identifies the repository license as MIT and the root LICENSE file provides a direct attribution path.",
+        "overnightScopeability": "The target is a two-file manager/test slice with an existing deterministic subclass seam and a focused package script, so setup and evidence remain bounded."
+      },
+      "total": 100,
+      "eligible": true,
+      "sources": [
+        "https://github.com/openai/openai-agents-js",
+        "https://github.com/openai/openai-agents-js/tree/710cccfd8fd26b395f8e3470419852d76de80967/examples/financial-research-agent",
+        "https://github.com/openai/openai-agents-js/blob/710cccfd8fd26b395f8e3470419852d76de80967/examples/financial-research-agent/manager.ts",
+        "https://github.com/openai/openai-agents-js/blob/710cccfd8fd26b395f8e3470419852d76de80967/examples/financial-research-agent/manager.test.ts",
+        "https://github.com/openai/openai-agents-js/commit/710cccfd8fd26b395f8e3470419852d76de80967",
+        "https://github.com/openai/openai-agents-js/releases/tag/v0.13.5",
+        "https://github.com/openai/openai-agents-js/blob/710cccfd8fd26b395f8e3470419852d76de80967/LICENSE"
+      ]
+    },
+    {
+      "id": "eliza-local-agent",
+      "repository": "elizaOS/eliza",
+      "targetSlice": "packages/agent local runtime and mock-backed journeys",
+      "commitSha": "71ad59c4283ec247e26b446b793cfd5fc688c6b1",
+      "language": "TypeScript",
+      "license": "MIT",
+      "archived": false,
+      "applicationOrFirstPartyExample": true,
+      "measuredPathNeedsPaidApiOrSecret": false,
+      "latestMaintainerActivityAt": "2026-07-19T21:16:44Z",
+      "latestActivityActorType": "User",
+      "githubSignals": { "stars": 18768, "forks": 5579, "latestRelease": null },
+      "scores": {
+        "customerRelevance": 25,
+        "noSecretReproducibility": 18,
+        "measurableFailureSurface": 20,
+        "maintenanceAdoption": 15,
+        "licenseClarity": 10,
+        "overnightScopeability": 1
+      },
+      "rationales": {
+        "customerRelevance": "Eliza is a shipped local-first agent application with chat, memory, tools, browser/computer use, automations, and an explicit agent runtime.",
+        "noSecretReproducibility": "The official repository documents local models and a mock cloud stack, and contains mock-backed agent journey tests, but meaningful app setup is a large Bun monorepo with heavyweight optional artifacts.",
+        "measurableFailureSurface": "First-party tests and runtime primitives expose action routing, memory lifecycle, plugin failures, multi-turn state, and user-journey outcomes with observable local boundaries.",
+        "maintenanceAdoption": "The repository is non-archived, had same-day maintainer activity at retrieval, and GitHub metadata shows 18,768 stars and 5,579 forks.",
+        "licenseClarity": "GitHub and the repository README identify a root MIT license with a direct license file.",
+        "overnightScopeability": "The active application and runtime span a very large Bun monorepo, native targets, plugins, and generated artifacts, making a defensible overnight slice costly."
+      },
+      "total": 89,
+      "eligible": true,
+      "sources": [
+        "https://github.com/elizaOS/eliza",
+        "https://github.com/elizaOS/eliza/tree/71ad59c4283ec247e26b446b793cfd5fc688c6b1/packages/agent",
+        "https://github.com/elizaOS/eliza/tree/71ad59c4283ec247e26b446b793cfd5fc688c6b1/packages/benchmarks",
+        "https://github.com/elizaOS/eliza/commit/71ad59c4283ec247e26b446b793cfd5fc688c6b1",
+        "https://github.com/elizaOS/eliza/blob/71ad59c4283ec247e26b446b793cfd5fc688c6b1/LICENSE"
+      ]
+    },
+    {
+      "id": "ui-tars-agent-tars",
+      "repository": "bytedance/UI-TARS-desktop",
+      "targetSlice": "multimodal/agent-tars/core snapshot-backed research example",
+      "commitSha": "c2ad42e3eb9b27830db41a3e6f51ca7179d9b168",
+      "language": "TypeScript",
+      "license": "Apache-2.0",
+      "archived": false,
+      "applicationOrFirstPartyExample": true,
+      "measuredPathNeedsPaidApiOrSecret": false,
+      "latestMaintainerActivityAt": "2026-07-01T03:03:17Z",
+      "latestActivityActorType": "User",
+      "githubSignals": { "stars": 38122, "forks": 3834, "latestRelease": "v0.3.0" },
+      "scores": {
+        "customerRelevance": 25,
+        "noSecretReproducibility": 10,
+        "measurableFailureSurface": 20,
+        "maintenanceAdoption": 15,
+        "licenseClarity": 10,
+        "overnightScopeability": 3
+      },
+      "rationales": {
+        "customerRelevance": "Agent TARS is a shipped CLI/Web UI agent application using multimodal model decisions, browser/computer tools, MCP, and an event stream.",
+        "noSecretReproducibility": "The official core contains recorded request, response, tool-call, and event-stream snapshots, but normal agent execution requires a model provider and API key; only the snapshot boundary is secret-free.",
+        "measurableFailureSurface": "Recorded event streams and tool-call snapshots expose multi-step sequencing, tool dispatch, malformed events, and terminal outcomes with automatable comparisons.",
+        "maintenanceAdoption": "The repository is non-archived, had a maintainer commit within three weeks of retrieval, a release within the prior year, and strong GitHub star/fork signals.",
+        "licenseClarity": "GitHub identifies Apache-2.0 and the root license provides clear reuse and attribution terms.",
+        "overnightScopeability": "A snapshot-backed core slice is bounded, but the multimodal runtime, browser tooling, pnpm workspace, and recorded fixtures add setup and interpretation cost."
+      },
+      "total": 83,
+      "eligible": true,
+      "sources": [
+        "https://github.com/bytedance/UI-TARS-desktop",
+        "https://github.com/bytedance/UI-TARS-desktop/tree/c2ad42e3eb9b27830db41a3e6f51ca7179d9b168/multimodal/agent-tars/core",
+        "https://github.com/bytedance/UI-TARS-desktop/tree/c2ad42e3eb9b27830db41a3e6f51ca7179d9b168/multimodal/agent-tars/core/snapshot",
+        "https://github.com/bytedance/UI-TARS-desktop/commit/c2ad42e3eb9b27830db41a3e6f51ca7179d9b168",
+        "https://github.com/bytedance/UI-TARS-desktop/releases/tag/v0.3.0",
+        "https://github.com/bytedance/UI-TARS-desktop/blob/c2ad42e3eb9b27830db41a3e6f51ca7179d9b168/LICENSE"
+      ]
+    },
+    {
+      "id": "open-swe-coding-agent",
+      "repository": "langchain-ai/open-swe",
+      "targetSlice": "agent orchestration and middleware",
+      "commitSha": "f0897479c38f2506f03b4de38081d4770928f09d",
+      "language": "Python",
+      "license": "MIT",
+      "archived": false,
+      "applicationOrFirstPartyExample": true,
+      "measuredPathNeedsPaidApiOrSecret": false,
+      "latestMaintainerActivityAt": "2026-07-17T18:40:40Z",
+      "latestActivityActorType": "User",
+      "githubSignals": { "stars": 10355, "forks": 1175, "latestRelease": null },
+      "scores": {
+        "customerRelevance": 25,
+        "noSecretReproducibility": 10,
+        "measurableFailureSurface": 20,
+        "maintenanceAdoption": 15,
+        "licenseClarity": 10,
+        "overnightScopeability": 1
+      },
+      "rationales": {
+        "customerRelevance": "Open SWE is a real asynchronous coding agent with tools, subagents, message injection, failure middleware, persistent sandboxes, and external invocation surfaces.",
+        "noSecretReproducibility": "Individual middleware can be unit-isolated, but the documented core application relies on LangGraph services, cloud sandboxes, GitHub integration, and optional Slack or Linear credentials.",
+        "measurableFailureSurface": "The official middleware layout exposes tool errors, queue consistency, model fallback, task retry, timeouts, state repair, and graceful notification behavior.",
+        "maintenanceAdoption": "The repository is non-archived, had a maintainer commit three days before retrieval, and GitHub metadata shows 10,355 stars and 1,175 forks.",
+        "licenseClarity": "The repository README and root license clearly identify MIT licensing and attribution.",
+        "overnightScopeability": "A credible target slice crosses a large Python application, LangGraph middleware, sandbox providers, and external-service interfaces, so setup is not overnight-friendly."
+      },
+      "total": 81,
+      "eligible": true,
+      "sources": [
+        "https://github.com/langchain-ai/open-swe",
+        "https://github.com/langchain-ai/open-swe/tree/f0897479c38f2506f03b4de38081d4770928f09d/agent/middleware",
+        "https://github.com/langchain-ai/open-swe/blob/f0897479c38f2506f03b4de38081d4770928f09d/docs/INSTALLATION.md",
+        "https://github.com/langchain-ai/open-swe/commit/f0897479c38f2506f03b4de38081d4770928f09d",
+        "https://github.com/langchain-ai/open-swe/blob/f0897479c38f2506f03b4de38081d4770928f09d/LICENSE"
+      ]
+    },
+    {
+      "id": "sim-workflow-agent",
+      "repository": "simstudioai/sim",
+      "targetSlice": "workflow execution engine agent block",
+      "commitSha": "4ddad7495fc61b3fbc94f7c77cdcbc32ce05a7c3",
+      "language": "TypeScript",
+      "license": "Apache-2.0",
+      "archived": false,
+      "applicationOrFirstPartyExample": true,
+      "measuredPathNeedsPaidApiOrSecret": false,
+      "latestMaintainerActivityAt": "2026-07-18T00:58:59Z",
+      "latestActivityActorType": "User",
+      "githubSignals": { "stars": 29155, "forks": 3722, "latestRelease": "v0.7.39" },
+      "scores": {
+        "customerRelevance": 25,
+        "noSecretReproducibility": 10,
+        "measurableFailureSurface": 20,
+        "maintenanceAdoption": 15,
+        "licenseClarity": 10,
+        "overnightScopeability": 1
+      },
+      "rationales": {
+        "customerRelevance": "Sim is a shipped agent and workflow application with tool integrations, memory-like data surfaces, scheduled runs, logs, and an agent execution block.",
+        "noSecretReproducibility": "Self-hosting is available and local model support is documented, but the application setup requires Docker, PostgreSQL with pgvector, generated secrets, and substantial services; chat also needs a hosted key.",
+        "measurableFailureSurface": "The workflow engine offers automatable agent block routing, tool output, integration failure, scheduling, state, and terminal workflow result surfaces.",
+        "maintenanceAdoption": "The repository is non-archived, had a maintainer release commit two days before retrieval, released v0.7.39, and has strong GitHub adoption signals.",
+        "licenseClarity": "GitHub and the repository README identify Apache-2.0 with a root license file.",
+        "overnightScopeability": "The relevant execution slice sits inside a large Bun monorepo with database, Docker, application, and integration setup, making a rigorous isolated teardown expensive."
+      },
+      "total": 81,
+      "eligible": true,
+      "sources": [
+        "https://github.com/simstudioai/sim",
+        "https://github.com/simstudioai/sim/tree/4ddad7495fc61b3fbc94f7c77cdcbc32ce05a7c3/apps/sim",
+        "https://github.com/simstudioai/sim/blob/4ddad7495fc61b3fbc94f7c77cdcbc32ce05a7c3/apps/docs/content/docs/en/workflows/blocks/agent.mdx",
+        "https://github.com/simstudioai/sim/commit/4ddad7495fc61b3fbc94f7c77cdcbc32ce05a7c3",
+        "https://github.com/simstudioai/sim/releases/tag/v0.7.39",
+        "https://github.com/simstudioai/sim/blob/4ddad7495fc61b3fbc94f7c77cdcbc32ce05a7c3/LICENSE"
+      ]
+    }
+  ]
+}

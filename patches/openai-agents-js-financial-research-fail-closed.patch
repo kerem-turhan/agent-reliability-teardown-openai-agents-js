@@ -1,0 +1,27 @@
+diff --git a/examples/financial-research-agent/manager.ts b/examples/financial-research-agent/manager.ts
+index 58a04aa..7334a4b 100644
+--- a/examples/financial-research-agent/manager.ts
++++ b/examples/financial-research-agent/manager.ts
+@@ -45,6 +45,9 @@ export class FinancialResearchManager {
+     console.log(`[start] Starting financial research...`);
+     const searchPlan = await this.planSearches(query);
+     const searchResults = await this.performSearches(searchPlan);
++    if (searchResults.length === 0) {
++      throw new Error('Financial research stopped: no usable search results.');
++    }
+     let report = await this.writeReport(query, searchResults);
+     let verification = await this.verifyReport(report, searchResults);
+     let revisions = 0;
+@@ -58,6 +61,11 @@ export class FinancialResearchManager {
+       verification = await this.verifyReport(report, searchResults);
+       revisions++;
+     }
++    if (!verification.verified) {
++      throw new Error(
++        `Financial research stopped after ${revisions} revisions: ${verification.issues}`,
++      );
++    }
+     const finalReport = `Report summary\n\n${report.short_summary}`;
+     console.log(finalReport);
+     console.log('\n\n=====REPORT=====\n\n');
+

@@ -1,0 +1,42 @@
+{
+  "name": "agent-reliability-teardown",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "attribution:check": "node scripts/check-attribution.mjs",
+    "build": "node scripts/build.mjs",
+    "candidates:check": "node scripts/check-candidates.mjs",
+    "claims:check": "node scripts/check-claims.mjs",
+    "corpus:hash": "node scripts/hash-corpus.mjs",
+    "corpus:validate": "node scripts/validate-corpus.mjs",
+    "docs:check": "node scripts/check-docs.mjs",
+    "failure-map:check": "node scripts/check-failure-map.mjs",
+    "findings:validate": "node scripts/validate-findings.mjs",
+    "freeze:check": "node scripts/check-freeze.mjs",
+    "format:check": "node scripts/check-format.mjs",
+    "lint": "node scripts/lint.mjs",
+    "patch:check": "node scripts/check-patch.mjs",
+    "plan:check": "node scripts/check-release-plan.mjs",
+    "evidence:validate": "node scripts/validate-evidence.mjs",
+    "evidence:hash": "node scripts/validate-evidence.mjs",
+    "scan:leaks": "node scripts/scan-leaks.mjs",
+    "scan:release": "node scripts/scan-release.mjs",
+    "target:checkout": "node scripts/checkout-target.mjs",
+    "target:install": "node scripts/install-target.mjs",
+    "target:setup": "npm run target:install",
+    "teardown:baseline": "node scripts/run-teardown.mjs",
+    "teardown:confirm-baseline": "node scripts/run-teardown.mjs --confirm-baseline",
+    "teardown:run-patched": "node scripts/run-teardown.mjs --patched",
+    "teardown:verify-fix": "node scripts/verify-fix.mjs",
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "typecheck": "node scripts/typecheck.mjs",
+    "verify:m1": "npm run candidates:check && npm run freeze:check",
+    "verify:m2": "npm run verify:m1 && npm run failure-map:check && npm run corpus:validate && npm run corpus:hash -- --check && npm test",
+    "verify:fast": "npm run format:check && npm run typecheck && npm run lint && npm test && npm run build && npm run plan:check && npm run evidence:validate && npm run findings:validate && npm run docs:check && npm run claims:check && npm run attribution:check && npm run patch:check",
+    "verify": "npm run target:setup && npm run verify:fast && npm run teardown:baseline && npm run teardown:verify-fix && npm run scan:release"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

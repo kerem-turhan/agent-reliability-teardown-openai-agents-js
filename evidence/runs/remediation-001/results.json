@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "runId": "remediation-001",
+  "runKind": "remediation",
+  "startedAt": "2026-07-20T00:21:09.578Z",
+  "completedAt": "2026-07-20T00:21:17.502Z",
+  "evidenceLevel": "synthetic-orchestration",
+  "sanitizedForRelease": true,
+  "target": {
+    "repository": "openai/openai-agents-js",
+    "slice": "examples/financial-research-agent",
+    "commitSha": "710cccfd8fd26b395f8e3470419852d76de80967"
+  },
+  "corpus": {
+    "version": "1.0.0",
+    "sha256": "843f53f24466a2bf761d2cd73eacd205dd0c5527a986b775f9732044e5009dc8"
+  },
+  "command": "npm run teardown:verify-fix",
+  "environment": {
+    "networkPolicy": "denied by fake boundaries and fetch guard",
+    "apiKeyPresent": false
+  },
+  "processExitCode": 0,
+  "patch": {
+    "path": "patches/openai-agents-js-financial-research-fail-closed.patch",
+    "sha256": "129fc9c3fb37456fd9463ea856a7043a71df834f24b9f3e7ea1588ef17428997"
+  },
+  "totals": {
+    "cases": 6,
+    "pass": 6,
+    "fail": 0,
+    "harnessError": 0
+  },
+  "cases": [
+    {
+      "id": "FR-001",
+      "title": "Parallel search preserves plan order",
+      "status": "pass",
+      "evidenceLevel": "synthetic-orchestration",
+      "oracle": {
+        "outcome": "success",
+        "returnedSearchResults": [
+          "Alpha source",
+          "Beta source"
+        ]
+      },
+      "observed": {
+        "outcome": "success",
+        "returnedSearchResults": [
+          "Alpha source",
+          "Beta source"
+        ]
+      },
+      "failureMessages": []
+    },
+    {
+      "id": "FR-002",
+      "title": "Partial search failure retains usable evidence",
+      "status": "pass",
+      "evidenceLevel": "synthetic-orchestration",
+      "oracle": {
+        "outcome": "success",
+        "returnedSearchResults": [
+          "Usable source"
+        ]
+      },
+      "observed": {
+        "outcome": "success",
+        "returnedSearchResults": [
+          "Usable source"
+        ]
+      },
+      "failureMessages": []
+    },
+    {
+      "id": "FR-003",
+      "title": "Complete search failure stops report generation",
+      "status": "pass",
+      "evidenceLevel": "synthetic-orchestration",
+      "oracle": {
+        "outcome": "controlled_error",
+        "writerCalls": 0,
+        "terminalReportEmitted": false
+      },
+      "observed": {
+        "outcome": "controlled_error",
+        "writerCalls": 0,
+        "verificationCalls": 0,
+        "revisionCalls": 0,
+        "terminalReportEmitted": false,
+        "errorName": "Error"
+      },
+      "failureMessages": []
+    },
+    {
+      "id": "FR-004",
+      "title": "Verified initial report completes without revision",
+      "status": "pass",
+      "evidenceLevel": "synthetic-orchestration",
+      "oracle": {
+        "outcome": "success",
+        "verificationCalls": 1,
+        "revisionCalls": 0,
+        "terminalReportEmitted": true
+      },
+      "observed": {
+        "outcome": "success",
+        "writerCalls": 1,
+        "verificationCalls": 1,
+        "revisionCalls": 0,
+        "terminalReportEmitted": true
+      },
+      "failureMessages": []
+    },
+    {
+      "id": "FR-005",
+      "title": "Verification can pass on the final permitted retry",
+      "status": "pass",
+      "evidenceLevel": "synthetic-orchestration",
+      "oracle": {
+        "outcome": "success",
+        "verificationCalls": 3,
+        "revisionCalls": 2,
+        "terminalReportEmitted": true
+      },
+      "observed": {
+        "outcome": "success",
+        "writerCalls": 1,
+        "verificationCalls": 3,
+        "revisionCalls": 2,
+        "terminalReportEmitted": true
+      },
+      "failureMessages": []
+    },
+    {
+      "id": "FR-006",
+      "title": "Exhausted verification stops unverified report emission",
+      "status": "pass",
+      "evidenceLevel": "synthetic-orchestration",
+      "oracle": {
+        "outcome": "controlled_error",
+        "verificationCalls": 3,
+        "revisionCalls": 2,
+        "terminalReportEmitted": false
+      },
+      "observed": {
+        "outcome": "controlled_error",
+        "writerCalls": 1,
+        "verificationCalls": 3,
+        "revisionCalls": 2,
+        "terminalReportEmitted": false,
+        "errorName": "Error"
+      },
+      "failureMessages": []
+    }
+  ],
+  "limitations": [
+    "Deterministic agent boundaries replace hosted model and web-search calls.",
+    "This run measures the frozen example manager orchestration only, not model or financial-analysis quality."
+  ]
+}
