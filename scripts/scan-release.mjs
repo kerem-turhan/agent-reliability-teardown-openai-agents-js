@@ -6,10 +6,35 @@ const tracked = execFileSync('git', ['ls-files'], { encoding: 'utf8' })
   .trim()
   .split('\n')
   .filter(Boolean);
-for (const forbidden of ['OFFER.md', 'OUTREACH-TEMPLATES.md', 'PAYMENT-LEGAL.md']) {
-  assert.ok(!tracked.includes(forbidden), `${forbidden} is private operations material`);
+// Private-operations material must never be tracked here, under any path.
+const forbiddenBasenames = [
+  'OFFER.md',
+  'OUTREACH-TEMPLATES.md',
+  'PAYMENT-LEGAL.md',
+  'LEADS.md',
+  'lead-list.md',
+  'pipeline.md',
+  'outreach-drafts.md',
+];
+for (const file of tracked) {
+  const base = file.split('/').pop();
+  assert.ok(!forbiddenBasenames.includes(base), `${file} is private operations material`);
 }
-assert.ok(!tracked.some((file) => /(^|\/)(?:\.work|node_modules|dist)(\/|$)/.test(file)));
+assert.ok(!tracked.some((file) => /(^|\/)(?:\.work|node_modules|dist|coverage)(\/|$)/.test(file)));
+
+// Tracked files must exactly equal the release-manifest allowlist (no drift in either direction).
+// Without this, RELEASE_PLAN.md's "only paths enumerated in release-manifest.json may be tracked"
+// is a promise nothing enforces: any newly committed file ships as long as its content is clean.
+const manifest = JSON.parse(readFileSync('release-manifest.json', 'utf8'));
+assert.equal(manifest.policy, 'allowlist');
+const allowed = new Set(manifest.files);
+const trackedSet = new Set(tracked);
+for (const file of tracked) {
+  assert.ok(allowed.has(file), `tracked file missing from release-manifest.json: ${file}`);
+}
+for (const file of allowed) {
+  assert.ok(trackedSet.has(file), `release-manifest.json lists untracked file: ${file}`);
+}
 
 const patterns = [
   { name: 'absolute macOS home path', regex: /\/Users\/[A-Za-z0-9._-]+\// },

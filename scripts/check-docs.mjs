@@ -48,4 +48,36 @@ for (const file of trackedMarkdown) {
   }
 }
 
-console.log(`docs: PASS (${required.length} teardown sections, ${relativeLinkCount} relative links)`);
+// A headline number must never travel without the evidence boundary that bounds it. Any tracked
+// Markdown file stating a ratio or percentage must name `synthetic-orchestration` at or before the
+// first such number, so the qualifier is visible where the number is rather than one scroll below
+// it. The repository's own About text is checked the same way: it is the surface most readers meet
+// first (search results, link previews) and until now no gate read it at all.
+const SCOPE_MARKER = /synthetic(?:ally)?[- ]orchestrat(?:ed|ion)/i;
+const HEADLINE_NUMBER = /(?<![\w./-])\d{1,3}\s*\/\s*\d{1,3}(?![\w./-])|\b\d{1,3}(?:\.\d+)?\s*%/;
+let scopedSurfaceCount = 0;
+const assertScopedNumbers = (label, text) => {
+  const number = text.match(HEADLINE_NUMBER);
+  if (!number) return;
+  const marker = text.match(SCOPE_MARKER);
+  assert.ok(
+    marker && marker.index < number.index,
+    `${label}: headline number "${number[0].trim()}" appears before the synthetic-orchestration boundary`,
+  );
+  scopedSurfaceCount += 1;
+};
+for (const file of trackedMarkdown) assertScopedNumbers(file, readFileSync(file, 'utf8'));
+
+// Published repository metadata is declared here and diffed against GitHub by `metadata:check`,
+// which needs the network. This offline half asserts the declared text is in-policy, so the two
+// halves together make an unlabeled About line impossible to ship rather than merely unlikely.
+const metadata = JSON.parse(readFileSync('release-metadata.json', 'utf8'));
+assert.match(metadata.repository, /^[\w.-]+\/[\w.-]+$/);
+assert.ok(metadata.description.length > 40 && metadata.description.length <= 350);
+assert.ok(Array.isArray(metadata.topics) && metadata.topics.length > 0);
+assertScopedNumbers('release-metadata.json description', metadata.description);
+
+console.log(
+  `docs: PASS (${required.length} teardown sections, ${relativeLinkCount} relative links, ` +
+    `${scopedSurfaceCount} scoped number surfaces)`,
+);

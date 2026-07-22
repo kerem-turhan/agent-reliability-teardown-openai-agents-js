@@ -35,7 +35,7 @@
       "evidenceLevel": "synthetic-orchestration",
       "evidencePaths": ["evidence/runs/baseline-002/results.json"],
       "command": "npm run evidence:validate",
-      "limitation": "This is not model-quality or production-incidence evidence."
+      "limitation": "This is not model-quality or production-incidence evidence. Two of the four passes (FR-004, FR-005) reproduce the example's own two shipped tests and were expected to pass; over the four cases designed by this teardown the baseline was 2 pass, 2 fail."
     },
     {
       "id": "C-005",

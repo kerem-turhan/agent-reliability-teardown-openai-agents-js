@@ -7,8 +7,10 @@ The target was frozen before results at commit
 [`710cccfd8fd26b395f8e3470419852d76de80967`](https://github.com/openai/openai-agents-js/commit/710cccfd8fd26b395f8e3470419852d76de80967),
 under the MIT license.
 
-A six-case deterministic corpus exercised the real `FinancialResearchManager` orchestration while
+A six-case `synthetic-orchestration` corpus exercised the real `FinancialResearchManager` orchestration while
 replacing hosted model and web-search calls with fixed boundaries. The baseline passed 4/6 cases.
+Two of those passes replicate the example's own two shipped tests, so the result over the four cases
+this teardown designed is 2 pass, 2 fail; the overlap is itemized under [Corpus](#corpus).
 Two cases showed fail-open terminal behavior:
 
 1. when every search failed, the manager still called the writer and emitted a report;
@@ -88,6 +90,22 @@ the upstream example's existing Vitest project only for the run, restores the or
 Corpus v1.0.0 contains six `synthetic-orchestration` cases and is frozen at SHA-256
 `843f53f24466a2bf761d2cd73eacd205dd0c5527a986b775f9732044e5009dc8`.
 
+### Overlap with the example's own tests
+
+The frozen example ships exactly two focused tests, and this corpus reproduces both of them:
+
+| Case | Upstream test in [`manager.test.ts`](https://github.com/openai/openai-agents-js/blob/710cccfd8fd26b395f8e3470419852d76de80967/examples/financial-research-agent/manager.test.ts#L73-L90) | Shared oracle |
+|---|---|---|
+| FR-004 | `does not revise a report that passes verification` | `verificationCalls = 1`, `revisionCalls = 0` |
+| FR-005 | `revises and re-verifies until the report passes verification` | `verificationCalls = 3`, `revisionCalls = 2` |
+
+Both cases were therefore expected to pass before the baseline ran: they restate behavior the target
+already tests and already satisfies. They are kept because the remediation must not break them, and
+because `teardown:verify-fix` re-runs the upstream tests directly. They are not independent evidence.
+
+**Of the four cases this teardown designed, two passed (FR-001, FR-002) and two failed (FR-003,
+FR-006). The headline 4/6 includes the two replicated cases.**
+
 ## Baseline
 
 Canonical `baseline-002` completed all cases with **4 pass, 2 fail, 0 harness errors**.
@@ -100,6 +118,10 @@ Canonical `baseline-002` completed all cases with **4 pass, 2 fail, 0 harness er
 | FR-004 | PASS | One verification, zero revisions, terminal report emitted. |
 | FR-005 | PASS | Three verifications, two revisions, then success. |
 | FR-006 | FAIL | Three negative verifications, two revisions, terminal report still emitted. |
+
+Two of the four passes — FR-004 and FR-005 — replicate the example's own shipped tests and were
+expected to pass; over the four cases this teardown designed the baseline was **2 pass, 2 fail**.
+See [Overlap with the example's own tests](#overlap-with-the-examples-own-tests).
 
 The earlier run history is retained: one zero-test harness error and one baseline contaminated by an
 upstream console guard. Neither was hidden or counted as canonical target evidence; see

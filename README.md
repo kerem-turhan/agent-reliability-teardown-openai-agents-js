@@ -4,9 +4,14 @@ A clean-room, reproducible teardown of the financial research example in
 [`openai/openai-agents-js`](https://github.com/openai/openai-agents-js), frozen at commit
 `710cccfd8fd26b395f8e3470419852d76de80967`.
 
-The six-case deterministic baseline found two fail-open orchestration paths: the manager emitted a
-report after all searches failed and after verification remained negative through its retry budget.
-Baseline: **4/6**. A one-file fail-closed patch: **6/6**.
+All results are `synthetic-orchestration`: real manager control flow driven through deterministic
+fake model and web-search boundaries. The six-case baseline found two fail-open orchestration paths:
+the manager emitted a report after all searches failed and after verification remained negative
+through its retry budget. Baseline: **4/6**. A one-file fail-closed patch: **6/6**.
+
+Two of those four baseline passes (FR-004, FR-005) reproduce the example's own two shipped tests, so
+over the four cases this teardown designed the baseline was 2 pass, 2 fail. The overlap is itemized
+in [TEARDOWN.md](TEARDOWN.md#overlap-with-the-examples-own-tests).
 
 Read the full constructive analysis in [TEARDOWN.md](TEARDOWN.md).
 

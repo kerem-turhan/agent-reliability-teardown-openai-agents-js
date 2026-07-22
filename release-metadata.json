@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "repository": "kerem-turhan/agent-reliability-teardown-openai-agents-js",
+  "description": "Clean-room, reproducible reliability teardown of the openai-agents-js financial research example. Failures are synthetically orchestrated: 2 fail-open paths, a 1-file fail-closed patch, 4/6 → 6/6 on a six-case corpus.",
+  "topics": ["ai-agents", "evals", "openai-agents-sdk", "reliability", "testing"]
+}

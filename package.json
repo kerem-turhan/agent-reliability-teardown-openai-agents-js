@@ -17,6 +17,7 @@
     "format:check": "node scripts/check-format.mjs",
     "lint": "node scripts/lint.mjs",
     "patch:check": "node scripts/check-patch.mjs",
+    "metadata:check": "node scripts/check-metadata.mjs",
     "plan:check": "node scripts/check-release-plan.mjs",
     "evidence:validate": "node scripts/validate-evidence.mjs",
     "evidence:hash": "node scripts/validate-evidence.mjs",
@@ -34,7 +35,8 @@
     "verify:m1": "npm run candidates:check && npm run freeze:check",
     "verify:m2": "npm run verify:m1 && npm run failure-map:check && npm run corpus:validate && npm run corpus:hash -- --check && npm test",
     "verify:fast": "npm run format:check && npm run typecheck && npm run lint && npm test && npm run build && npm run plan:check && npm run evidence:validate && npm run findings:validate && npm run docs:check && npm run claims:check && npm run attribution:check && npm run patch:check",
-    "verify": "npm run target:setup && npm run verify:fast && npm run teardown:baseline && npm run teardown:verify-fix && npm run scan:release"
+    "verify": "npm run target:setup && npm run verify:fast && npm run teardown:baseline && npm run teardown:verify-fix && npm run scan:release",
+    "release:check": "npm run verify && npm run metadata:check"
   },
   "engines": {
     "node": ">=22"

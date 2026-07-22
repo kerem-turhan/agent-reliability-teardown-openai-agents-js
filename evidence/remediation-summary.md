@@ -1,5 +1,8 @@
 # Remediation summary
 
+**Canonical run:** `remediation-001`  
+**Evidence level:** `synthetic-orchestration`
+
 The minimal patch changes one upstream file with two fail-closed guards. The target commit and corpus
 remain unchanged; the remediation run records the declared patch SHA separately.
 

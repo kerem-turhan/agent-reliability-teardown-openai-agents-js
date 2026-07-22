@@ -31,6 +31,7 @@
     "patches/manifest.json",
     "patches/openai-agents-js-financial-research-fail-closed.patch",
     "release-manifest.json",
+    "release-metadata.json",
     "research/candidates.json",
     "research/candidates.md",
     "research/target-freeze.json",
@@ -43,6 +44,7 @@
     "scripts/check-failure-map.mjs",
     "scripts/check-format.mjs",
     "scripts/check-freeze.mjs",
+    "scripts/check-metadata.mjs",
     "scripts/check-patch.mjs",
     "scripts/check-release-plan.mjs",
     "scripts/checkout-target.mjs",
@@ -60,6 +62,7 @@
     "scripts/verify-fix.mjs",
     "tests/corpus-schema.test.mjs",
     "tests/evidence.test.mjs",
+    "tests/release-guards.test.mjs",
     "tests/release-manifest.test.mjs",
     "tests/sanitize.test.mjs"
   ]
