@@ -161,6 +161,22 @@ The patch SHA-256 is `129fc9c3fb37456fd9463ea856a7043a71df834f24b9f3e7ea1588ef17
 It is stored in [`patches/openai-agents-js-financial-research-fail-closed.patch`](patches/openai-agents-js-financial-research-fail-closed.patch)
 with MIT attribution. No upstream issue or pull request was created.
 
+### What the patch does to the command line
+
+Stopping by throwing is fail-closed at the manager boundary, but it is not yet a clean stop at the
+example's command line, and this teardown owes the reader that distinction. The frozen entrypoint
+raises the throw inside an `async` callback passed to `rl.question`, and `main().catch(...)` has
+already settled by the time that callback runs, so nothing owns the rejection. Measured rather than
+assumed, in [`experiments/cli-error-path/`](experiments/cli-error-path) and gated by
+`npm run cli-error:repro`: the frozen shape terminates on an unhandled rejection and never reaches
+the entrypoint's intended `console.error` plus `process.exit(1)`, while routing the callback's
+promise — a one-line change in `main.ts` — produces the intended message and exit code.
+
+The patch is deliberately left as it is. It is scoped to `manager.ts`, and the recorded remediation
+run, its declared SHA-256, and every claim that cites it are frozen against that exact content. A
+maintainer adopting this would want the entrypoint change alongside it; the experiment shows both
+shapes so the difference is checkable rather than asserted.
+
 ## Before and after
 
 Every figure in this table is `synthetic-orchestration`: real manager control flow, deterministic
@@ -204,7 +220,10 @@ release. Individual commands are documented in [`README.md`](README.md).
   production incidence, and user impact are unmeasured.
 - The corpus covers one example at one commit. Results do not generalize to the Agents SDK, OpenAI
   products, other agents, or production systems.
-- Throwing a descriptive manager error is verified; CLI presentation of that error was not evaluated.
+- Throwing a descriptive manager error is verified. Its presentation at the example's command line
+  was measured separately and is not clean in the frozen entrypoint shape: the error surfaces as an
+  unhandled rejection rather than the intended `console.error` and exit code. See
+  [What the patch does to the command line](#what-the-patch-does-to-the-command-line).
 
 ## Actionable checklist for agent teams
 

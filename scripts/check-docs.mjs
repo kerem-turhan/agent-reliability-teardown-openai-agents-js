@@ -31,20 +31,40 @@ assert.ok(readme.includes('npm ci\nnpm run verify'));
 assert.ok(readme.includes('No model API key'));
 
 // Every relative Markdown link in tracked documentation must resolve to an existing path, so a
-// rename or typo can never ship a dead link. External (http/https/mailto) and pure-anchor links
-// are out of scope.
+// rename or typo can never ship a dead link. Section anchors are checked too — a link to a heading
+// that no longer exists lands the reader in the wrong place while every path in it still resolves,
+// which is exactly the kind of breakage a path-only check reports as fine.
 const trackedMarkdown = execFileSync('git', ['ls-files', '*.md'], { encoding: 'utf8' })
   .trim()
   .split('\n')
   .filter(Boolean);
+const headingSlugs = (text) =>
+  new Set(
+    [...text.matchAll(/^#{1,6}\s+(.+?)\s*$/gm)].map(([, title]) =>
+      title
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-'),
+    ),
+  );
 let relativeLinkCount = 0;
+let anchorCount = 0;
 for (const file of trackedMarkdown) {
-  const links = readFileSync(file, 'utf8').matchAll(/\[[^\]]*\]\(([^)\s]+)\)/g);
-  for (const [, rawTarget] of links) {
-    if (/^(?:https?:|mailto:|#)/.test(rawTarget)) continue;
-    const target = normalize(join(dirname(file), rawTarget.split('#')[0]));
-    relativeLinkCount += 1;
-    assert.ok(existsSync(target), `broken relative link in ${file}: ${rawTarget}`);
+  const content = readFileSync(file, 'utf8');
+  for (const [, rawTarget] of content.matchAll(/\[[^\]]*\]\(([^)\s]+)\)/g)) {
+    if (/^(?:https?:|mailto:)/.test(rawTarget)) continue;
+    const [rawPath, fragment] = rawTarget.split('#');
+    const target = rawPath === '' ? file : normalize(join(dirname(file), rawPath));
+    if (rawPath !== '') {
+      relativeLinkCount += 1;
+      assert.ok(existsSync(target), `broken relative link in ${file}: ${rawTarget}`);
+    }
+    if (!fragment) continue;
+    anchorCount += 1;
+    assert.ok(
+      target.endsWith('.md') && headingSlugs(readFileSync(target, 'utf8')).has(fragment),
+      `broken section anchor in ${file}: ${rawTarget}`,
+    );
   }
 }
 
@@ -108,6 +128,6 @@ assert.ok(Array.isArray(metadata.topics) && metadata.topics.length > 0);
 assertScopedNumbers('release-metadata.json description', metadata.description);
 
 console.log(
-  `docs: PASS (${required.length} teardown sections, ${relativeLinkCount} relative links, ` +
+  `docs: PASS (${required.length} teardown sections, ${relativeLinkCount} relative links, ${anchorCount} anchors, ` +
     `${scopedNumberCount} scoped numbers)`,
 );
