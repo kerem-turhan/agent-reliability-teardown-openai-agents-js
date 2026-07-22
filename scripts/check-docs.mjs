@@ -53,18 +53,48 @@ for (const file of trackedMarkdown) {
 // first such number, so the qualifier is visible where the number is rather than one scroll below
 // it. The repository's own About text is checked the same way: it is the surface most readers meet
 // first (search results, link previews) and until now no gate read it at all.
-const SCOPE_MARKER = /synthetic(?:ally)?[- ]orchestrat(?:ed|ion)/i;
-const HEADLINE_NUMBER = /(?<![\w./-])\d{1,3}\s*\/\s*\d{1,3}(?![\w./-])|\b\d{1,3}(?:\.\d+)?\s*%/;
-let scopedSurfaceCount = 0;
+// Checking only the first number per file would leave every later one unscoped — a document could
+// open in policy and then state anything below the fold. So each number is checked twice: the
+// boundary must be stated before the first number in the document, and it must also be stated
+// inside the same `##` section as every individual number, which is what stops an unlabeled figure
+// from being appended to the end of an otherwise compliant page.
+// A number must carry the boundary that actually bounds it, which is not always the project's
+// headline one: a rubric score is official-source-metadata, a patch hash is static-analysis. The
+// accepted markers are therefore the evidence levels the claim record itself declares, so this gate
+// cannot drift from the vocabulary the claims use, plus the prose form used in the About text.
+const evidenceLevels = [
+  ...new Set(JSON.parse(readFileSync('claims/claims.json', 'utf8')).claims.map((claim) => claim.evidenceLevel)),
+];
+const SCOPE_MARKER = new RegExp(
+  [...evidenceLevels, String.raw`synthetic(?:ally)?[- ]orchestrat(?:ed|ion)`].join('|'),
+  'gi',
+);
+const HEADLINE_NUMBER = /(?<![\w./-])\d{1,3}\s*\/\s*\d{1,3}(?![\w./-])|\b\d{1,3}(?:\.\d+)?\s*%/g;
+const firstIndex = (text, pattern) => {
+  const match = new RegExp(pattern.source, pattern.flags.replace('g', '')).exec(text);
+  return match ? match.index : -1;
+};
+let scopedNumberCount = 0;
 const assertScopedNumbers = (label, text) => {
-  const number = text.match(HEADLINE_NUMBER);
-  if (!number) return;
-  const marker = text.match(SCOPE_MARKER);
+  const documentMarker = firstIndex(text, SCOPE_MARKER);
+  const documentNumber = firstIndex(text, HEADLINE_NUMBER);
+  if (documentNumber < 0) return;
   assert.ok(
-    marker && marker.index < number.index,
-    `${label}: headline number "${number[0].trim()}" appears before the synthetic-orchestration boundary`,
+    documentMarker >= 0 && documentMarker < documentNumber,
+    `${label}: headline number appears before the synthetic-orchestration boundary`,
   );
-  scopedSurfaceCount += 1;
+  // Index 0 is everything above the first heading, which is its own section for this purpose.
+  const sections = text.split(/^## /m);
+  for (const [index, section] of sections.entries()) {
+    const numbers = [...section.matchAll(HEADLINE_NUMBER)];
+    if (numbers.length === 0) continue;
+    const heading = index === 0 ? 'preamble' : section.split('\n', 1)[0];
+    assert.ok(
+      firstIndex(section, SCOPE_MARKER) >= 0,
+      `${label} (${heading}): "${numbers[0][0].trim()}" is stated with no synthetic-orchestration boundary in its section`,
+    );
+    scopedNumberCount += numbers.length;
+  }
 };
 for (const file of trackedMarkdown) assertScopedNumbers(file, readFileSync(file, 'utf8'));
 
@@ -79,5 +109,5 @@ assertScopedNumbers('release-metadata.json description', metadata.description);
 
 console.log(
   `docs: PASS (${required.length} teardown sections, ${relativeLinkCount} relative links, ` +
-    `${scopedSurfaceCount} scoped number surfaces)`,
+    `${scopedNumberCount} scoped numbers)`,
 );

@@ -6,6 +6,8 @@ const files = execFileSync('git', ['ls-files'], { encoding: 'utf8' })
   .trim()
   .split('\n')
   .filter((file) => /\.(?:json|mjs|ts|md)$/.test(file));
+// An empty list would make every assertion below vacuous while still printing PASS.
+assert.ok(files.length > 0, 'no text artifacts to check');
 for (const file of files) {
   const content = readFileSync(file, 'utf8');
   assert.ok(content.endsWith('\n'), `${file} lacks final newline`);

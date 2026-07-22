@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -101,7 +101,53 @@ test('docs check rejects a headline number stated before the evidence boundary',
   writeFileSync(readmePath, readme.replace(/synthetic-orchestration/g, 'deterministic'));
   const result = runGuard(directory, 'check-docs.mjs');
   assert.notEqual(result.status, 0, 'an unlabeled headline number must fail the docs check');
-  assert.match(result.stderr, /README\.md: headline number .* appears before the synthetic-orchestration boundary/);
+  assert.match(result.stderr, /README\.md: headline number appears before the synthetic-orchestration boundary/);
+});
+
+test('docs check rejects an unscoped number appended below a compliant opening', () => {
+  const directory = buildFixture();
+  const readmePath = join(directory, 'README.md');
+  writeFileSync(
+    readmePath,
+    `${readFileSync(readmePath, 'utf8')}\n## Results at a glance\n\nReliability went from 67% to 100%.\n`,
+  );
+  const result = runGuard(directory, 'check-docs.mjs');
+  assert.notEqual(result.status, 0, 'checking only the first number per file would miss this');
+  assert.match(result.stderr, /README\.md \(Results at a glance\): "67%" is stated with no synthetic-orchestration boundary/);
+});
+
+test('cleanup check sees an orphan whose command line never mentions the target', () => {
+  const directory = buildFixture();
+  const targetDirectory = mkdtempSync(join(tmpdir(), 'release-guard-target-'));
+  fixtures.push(targetDirectory);
+  const targetGit = (...args) => execFileSync('git', args, { cwd: targetDirectory, stdio: 'ignore' });
+  targetGit('init', '--quiet', '--initial-branch=main');
+  targetGit('config', 'user.name', 'probe');
+  targetGit('config', 'user.email', ['probe', '@', 'users.noreply.github.com'].join(''));
+  writeFileSync(join(targetDirectory, 'file.txt'), 'target\n');
+  targetGit('add', '--all');
+  targetGit('-c', 'commit.gpgsign=false', 'commit', '--quiet', '--message', 'target');
+  const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: targetDirectory, encoding: 'utf8' }).trim();
+  const freezePath = join(directory, 'research', 'target-freeze.json');
+  const freeze = JSON.parse(readFileSync(freezePath, 'utf8'));
+  writeFileSync(freezePath, `${JSON.stringify({ ...freeze, localCheckout: targetDirectory, commitSha: head }, null, 2)}\n`);
+
+  assert.equal(runGuard(directory, 'check-cleanup.mjs').status, 0, 'no orphan yet');
+
+  // Relative argv, cwd inside the target — exactly what the runner spawns, and exactly what a
+  // command-line match cannot see.
+  const orphan = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 30000)'], {
+    cwd: targetDirectory,
+    stdio: 'ignore',
+  });
+  try {
+    execFileSync('sleep', ['1']);
+    const result = runGuard(directory, 'check-cleanup.mjs');
+    assert.notEqual(result.status, 0, 'an orphan inside the target must fail the cleanup gate');
+    assert.match(result.stderr, /orphan target processes remain/);
+  } finally {
+    orphan.kill('SIGKILL');
+  }
 });
 
 // Probes that target history must not also add a tracked file: the allowlist check runs first and

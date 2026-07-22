@@ -34,9 +34,9 @@ a security finding, or evidence about production frequency.
 | Git tree | `be99e83816cd30e4cf6cea9e4d521033d25a36bb` |
 | License | MIT; license SHA-256 `969d1c8178ad9a1ae2ff1e67534151d4cc58a2626274b272f918995bccd3a6ad` |
 
-Five active candidates were scored with a rubric frozen before selection. The chosen example scored
-100/100 because it is a bounded TypeScript multi-agent workflow with a documented deterministic test
-seam. Full selection rationales and official GitHub sources are in
+Five active candidates were scored with a rubric frozen before selection. This is
+`official-source-metadata`, not a measurement: the chosen example scored 100/100 because it is a
+bounded TypeScript multi-agent workflow with a documented deterministic test seam. Full selection rationales and official GitHub sources are in
 [`research/candidates.md`](research/candidates.md).
 
 ## System model
@@ -163,6 +163,10 @@ with MIT attribution. No upstream issue or pull request was created.
 
 ## Before and after
 
+Every figure in this table is `synthetic-orchestration`: real manager control flow, deterministic
+fake model and web-search boundaries. Two of the four baseline passes replicate the example's own
+shipped tests, as itemized under [Corpus](#overlap-with-the-examples-own-tests).
+
 | Metric | Baseline | Patched |
 |---|---:|---:|
 | Frozen corpus pass | 4/6 | 6/6 |
@@ -186,8 +190,8 @@ npm run verify
 ```
 
 `npm run verify` checks provenance and frozen hashes, sets up the detached target checkout, validates
-format/typecheck/lint/tests/build/docs/claims/attribution, reproduces the 4/6 baseline, applies the patch
-temporarily, reproduces 6/6 plus upstream compatibility checks, reverses the patch, and scans the
+format/typecheck/lint/tests/build/docs/claims/attribution, reproduces the canonical `synthetic-orchestration`
+baseline (4/6), applies the patch temporarily, reproduces 6/6 plus upstream compatibility checks, reverses the patch, and scans the
 release. Individual commands are documented in [`README.md`](README.md).
 
 ## Limitations

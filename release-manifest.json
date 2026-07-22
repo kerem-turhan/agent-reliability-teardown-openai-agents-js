@@ -54,6 +54,7 @@
     "scripts/lib/sanitize.mjs",
     "scripts/lint.mjs",
     "scripts/run-teardown.mjs",
+    "scripts/run-tests.mjs",
     "scripts/scan-leaks.mjs",
     "scripts/scan-release.mjs",
     "scripts/typecheck.mjs",

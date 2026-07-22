@@ -37,7 +37,7 @@ checked out in `.work/`, and fails loudly if it is not.
 | Command | Purpose |
 |---|---|
 | `npm run target:setup` | Clone, verify, install, and build the frozen target dependencies |
-| `npm run teardown:baseline` | Reproduce and compare the canonical 4/6 baseline |
+| `npm run teardown:baseline` | Reproduce and compare the canonical `synthetic-orchestration` baseline (4/6) |
 | `npm run teardown:verify-fix` | Apply patch, reproduce 6/6, run upstream compatibility checks, reverse patch |
 | `npm run evidence:validate` | Validate target and corpus hashes, run totals, and case labels |
 | `npm run findings:validate` | Validate both RED → GREEN findings |

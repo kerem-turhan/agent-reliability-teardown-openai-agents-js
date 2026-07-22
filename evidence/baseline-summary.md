@@ -27,5 +27,6 @@ the command creates an ignored reproduction run and compares case statuses.
 - `harness-error-001`: zero tests discovered; no target result counted.
 - `baseline-001`: two valid target failures plus two console-guard harness errors; the immutable run is
   accompanied by a hash-bound adjudication.
-- `baseline-002`: expected manager logs isolated; canonical 4/6 pass and 2/6 fail result.
+- `baseline-002`: expected manager logs isolated; canonical `synthetic-orchestration` result of 4/6
+  pass and 2/6 fail.
 

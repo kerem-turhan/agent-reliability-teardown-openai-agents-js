@@ -122,7 +122,16 @@ const cases = corpusDocument.cases.map((item) => {
   const observed = observedById.get(item.id);
   assert.ok(assertionResult, `missing Vitest result for ${item.id}`);
   assert.ok(observed, `missing observed result for ${item.id}`);
-  const status = assertionResult.status === 'passed' ? 'pass' : 'fail';
+  // Vitest reports more than passed and failed: pending, todo and skipped all mean the case never
+  // ran. Folding them into 'fail' made the harnessError total below a bucket nothing could land in,
+  // so "0 harness errors" was true by construction — and a case that never ran was published as a
+  // defect in the target.
+  const status =
+    assertionResult.status === 'passed'
+      ? 'pass'
+      : assertionResult.status === 'failed'
+        ? 'fail'
+        : 'harness_error';
   return {
     id: item.id,
     title: item.title,
@@ -148,6 +157,13 @@ const totals = {
   fail: cases.filter((item) => item.status === 'fail').length,
   harnessError: cases.filter((item) => !['pass', 'fail'].includes(item.status)).length,
 };
+// Infrastructure failures must not masquerade as target results, in either direction: a run that
+// could not measure every case is not evidence and may not be recorded or compared against.
+assert.equal(
+  totals.harnessError,
+  0,
+  `harness errors are not target evidence: ${cases.filter((item) => item.status === 'harness_error').map((item) => item.id).join(', ')}`,
+);
 const result = sanitizeValue(
   {
     schemaVersion: 1,
@@ -163,7 +179,9 @@ const result = sanitizeValue(
     },
     corpus: {
       version: corpusDocument.corpusVersion,
-      sha256: JSON.parse(readFileSync('evaluation/corpus/freeze.json', 'utf8')).corpusSha256,
+      // Hash the corpus bytes this run actually read. Copying freeze.json's claim here made
+      // validate-evidence compare freeze.json against itself.
+      sha256: createHash('sha256').update(readFileSync(corpus)).digest('hex'),
     },
     runnerCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     command: `corepack ${commandArgs.join(' ')}`,
