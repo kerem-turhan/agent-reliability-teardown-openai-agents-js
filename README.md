@@ -25,6 +25,10 @@ The patch is applied only for its verification run and is reversed automatically
 
 ## Focused commands
 
+`npm run verify` runs all of these in order. If you want to run one on its own, run
+`npm run target:setup` first: every command below assumes the frozen target is already
+checked out in `.work/`, and fails loudly if it is not.
+
 | Command | Purpose |
 |---|---|
 | `npm run target:setup` | Clone, verify, install, and build the frozen target dependencies |
