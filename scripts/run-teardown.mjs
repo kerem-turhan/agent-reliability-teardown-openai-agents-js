@@ -8,6 +8,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { resolveRunMode } from './lib/run-mode.mjs';
 import { sanitizeText, sanitizeValue } from './lib/sanitize.mjs';
 
 const repo = process.cwd();
@@ -19,27 +20,27 @@ const upstreamHarness = resolve(target, upstreamHarnessRelative);
 const baselineOne = resolve('evidence/runs/baseline-001/results.json');
 const baselineTwo = resolve('evidence/runs/baseline-002/results.json');
 const remediationOne = resolve('evidence/runs/remediation-001/results.json');
-const confirmBaseline = process.argv.includes('--confirm-baseline');
-const patched = process.argv.includes('--patched');
+const runPaths = { baselineOne, baselineTwo, remediationOne };
+const {
+  confirmBaseline,
+  patched,
+  recordResult,
+  trackedResultKey,
+  comparisonKey,
+  runId,
+  runKind,
+} = resolveRunMode({
+  argv: process.argv,
+  hasBaselineOne: existsSync(baselineOne),
+  hasBaselineTwo: existsSync(baselineTwo),
+  timestamp: new Date().toISOString().replace(/[:.]/g, '-'),
+});
+const trackedResult = runPaths[trackedResultKey];
 assert.ok(!(confirmBaseline && patched), 'baseline confirmation and patched run are mutually exclusive');
-const initialBaseline = !existsSync(baselineOne);
 if (confirmBaseline) {
   assert.ok(existsSync(baselineOne), 'baseline-001 must exist before confirmation');
   assert.ok(!existsSync(baselineTwo), 'baseline-002 already exists');
 }
-const recordBaseline = !patched && (initialBaseline || confirmBaseline);
-const recordRemediation = patched && !existsSync(remediationOne);
-const recordResult = recordBaseline || recordRemediation;
-const trackedResult = recordRemediation ? remediationOne : confirmBaseline ? baselineTwo : baselineOne;
-const runId = patched
-  ? recordRemediation
-    ? 'remediation-001'
-    : `remediation-reproduction-${new Date().toISOString().replace(/[:.]/g, '-')}`
-  : initialBaseline
-    ? 'baseline-001'
-    : confirmBaseline
-      ? 'baseline-002'
-      : `reproduction-${new Date().toISOString().replace(/[:.]/g, '-')}`;
 const rawDirectory = resolve('.work/evidence-raw', runId);
 const observedFile = resolve(rawDirectory, 'observed.jsonl');
 const vitestFile = resolve(rawDirectory, 'vitest.json');
@@ -151,7 +152,7 @@ const result = sanitizeValue(
   {
     schemaVersion: 1,
     runId,
-    runKind: recordRemediation ? 'remediation' : recordBaseline ? 'baseline' : 'reproduction',
+    runKind,
     startedAt,
     completedAt: new Date().toISOString(),
     evidenceLevel: 'synthetic-orchestration',
@@ -197,11 +198,11 @@ if (recordResult) {
   mkdirSync(dirname(trackedResult), { recursive: true });
   writeFileSync(trackedResult, `${JSON.stringify(result, null, 2)}\n`);
 } else {
-  const comparisonPath = patched
-    ? remediationOne
-    : existsSync(baselineTwo)
-      ? baselineTwo
-      : baselineOne;
+  const comparisonPath = runPaths[comparisonKey];
+  assert.ok(
+    existsSync(comparisonPath),
+    `no canonical run to compare against at ${comparisonPath}; re-record deliberately with --record`,
+  );
   const baseline = JSON.parse(readFileSync(comparisonPath, 'utf8'));
   assert.deepEqual(
     cases.map(({ id, status }) => ({ id, status })),

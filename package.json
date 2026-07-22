@@ -7,6 +7,7 @@
     "attribution:check": "node scripts/check-attribution.mjs",
     "build": "node scripts/build.mjs",
     "candidates:check": "node scripts/check-candidates.mjs",
+    "cleanup:check": "node scripts/check-cleanup.mjs",
     "claims:check": "node scripts/check-claims.mjs",
     "corpus:hash": "node scripts/hash-corpus.mjs",
     "corpus:validate": "node scripts/validate-corpus.mjs",
@@ -34,8 +35,8 @@
     "typecheck": "node scripts/typecheck.mjs",
     "verify:m1": "npm run candidates:check && npm run freeze:check",
     "verify:m2": "npm run verify:m1 && npm run failure-map:check && npm run corpus:validate && npm run corpus:hash -- --check && npm test",
-    "verify:fast": "npm run format:check && npm run typecheck && npm run lint && npm test && npm run build && npm run plan:check && npm run evidence:validate && npm run findings:validate && npm run docs:check && npm run claims:check && npm run attribution:check && npm run patch:check",
-    "verify": "npm run target:setup && npm run verify:fast && npm run teardown:baseline && npm run teardown:verify-fix && npm run scan:release",
+    "verify:fast": "npm run format:check && npm run typecheck && npm run lint && npm test && npm run build && npm run plan:check && npm run candidates:check && npm run evidence:validate && npm run findings:validate && npm run docs:check && npm run claims:check && npm run attribution:check && npm run patch:check && npm run scan:leaks",
+    "verify": "npm run target:setup && npm run verify:fast && npm run teardown:baseline && npm run teardown:verify-fix && npm run cleanup:check && npm run scan:release",
     "release:check": "npm run verify && npm run metadata:check"
   },
   "engines": {

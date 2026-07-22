@@ -50,6 +50,7 @@
     "scripts/checkout-target.mjs",
     "scripts/hash-corpus.mjs",
     "scripts/install-target.mjs",
+    "scripts/lib/run-mode.mjs",
     "scripts/lib/sanitize.mjs",
     "scripts/lint.mjs",
     "scripts/run-teardown.mjs",
@@ -64,6 +65,7 @@
     "tests/evidence.test.mjs",
     "tests/release-guards.test.mjs",
     "tests/release-manifest.test.mjs",
+    "tests/run-mode.test.mjs",
     "tests/sanitize.test.mjs"
   ]
 }

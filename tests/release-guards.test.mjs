@@ -29,8 +29,9 @@ const buildFixture = () => {
   git('init', '--quiet', '--initial-branch=main');
   git('config', 'user.name', 'probe');
   // Assembled from fragments so this file never contains a literal email address: `scan-release`
-  // treats any email-shaped string in tracked content as leakage, and it is right to.
-  git('config', 'user.email', ['probe', '@', 'example.invalid'].join(''));
+  // treats any email-shaped string in tracked content as leakage, and it is right to. The value is
+  // a GitHub noreply address because the release identity allowlist accepts nothing else.
+  git('config', 'user.email', ['probe', '@', 'users.noreply.github.com'].join(''));
   git('add', '--all');
   git('-c', 'commit.gpgsign=false', 'commit', '--quiet', '--message', 'fixture');
   return directory;
@@ -101,6 +102,119 @@ test('docs check rejects a headline number stated before the evidence boundary',
   const result = runGuard(directory, 'check-docs.mjs');
   assert.notEqual(result.status, 0, 'an unlabeled headline number must fail the docs check');
   assert.match(result.stderr, /README\.md: headline number .* appears before the synthetic-orchestration boundary/);
+});
+
+// Probes that target history must not also add a tracked file: the allowlist check runs first and
+// would fail the scan for the wrong reason. Amending an already-allowlisted file keeps the planted
+// violation the only one.
+const appendTrackedLine = (directory) => {
+  const path = join(directory, 'docs', 'methodology.md');
+  writeFileSync(path, `${readFileSync(path, 'utf8')}\n`);
+  execFileSync('git', ['add', '--all'], { cwd: directory, stdio: 'ignore' });
+};
+
+test('release scan rejects an email that survives only in deleted history', () => {
+  const directory = buildFixture();
+  const leaked = ['contact', '@', 'example.com'].join('');
+  writeFileSync(join(directory, 'docs', 'note.md'), `reach me at ${leaked}\n`);
+  commitAll(directory);
+  rmSync(join(directory, 'docs', 'note.md'));
+  commitAll(directory);
+  const result = runGuard(directory, 'scan-release.mjs');
+  assert.notEqual(result.status, 0, 'deleting a leaked address does not unleak it');
+  assert.match(result.stderr, /email address found in Git history/);
+});
+
+test('release scan rejects a commit identity that is not a release identity', () => {
+  const directory = buildFixture();
+  appendTrackedLine(directory);
+  execFileSync(
+    'git',
+    [
+      '-c',
+      'commit.gpgsign=false',
+      '-c',
+      `user.email=${['someone', '@', 'gmail.com'].join('')}`,
+      'commit',
+      '--quiet',
+      '--message',
+      'personal identity',
+    ],
+    { cwd: directory, stdio: 'ignore' },
+  );
+  const result = runGuard(directory, 'scan-release.mjs');
+  assert.notEqual(result.status, 0, 'a personal committer address must fail the release scan');
+  assert.match(result.stderr, /is not a GitHub noreply release identity/);
+});
+
+test('release scan rejects a forbidden name that appears only in a commit subject', () => {
+  const directory = buildFixture();
+  appendTrackedLine(directory);
+  execFileSync(
+    'git',
+    ['-c', 'commit.gpgsign=false', 'commit', '--quiet', '--message', `port from ${['still', 'pass'].join('')}`],
+    { cwd: directory, stdio: 'ignore' },
+  );
+  const result = runGuard(directory, 'scan-release.mjs');
+  assert.notEqual(result.status, 0, 'commit subjects are published text and must be scanned');
+  assert.match(result.stderr, /forbidden project\/brand name .* found in Git commit or tag metadata/);
+});
+
+const rewriteClaim = (directory, id, mutate) => {
+  const path = join(directory, 'claims', 'claims.json');
+  const document = JSON.parse(readFileSync(path, 'utf8'));
+  mutate(document.claims.find((claim) => claim.id === id));
+  writeFileSync(path, `${JSON.stringify(document, null, 2)}\n`);
+};
+
+test('claims check rejects a run total that the recorded run does not support', () => {
+  const directory = buildFixture();
+  rewriteClaim(directory, 'C-004', (claim) => {
+    claim.claim = 'Canonical baseline-002 completed 6 pass, 0 fail, and 0 harness errors.';
+  });
+  const result = runGuard(directory, 'check-claims.mjs');
+  assert.notEqual(result.status, 0, 'a falsified run total must fail the claims gate');
+  assert.match(result.stderr, /C-004 states "6 pass" but the run recorded 4/);
+});
+
+test('claims check rejects a ratio no cited evidence supports', () => {
+  const directory = buildFixture();
+  rewriteClaim(directory, 'C-007', (claim) => {
+    claim.claim = 'The unchanged corpus passed 97/6 with the declared remediation patch.';
+  });
+  const result = runGuard(directory, 'check-claims.mjs');
+  assert.notEqual(result.status, 0, 'an unsupported ratio must fail the claims gate');
+  assert.match(result.stderr, /C-007 states 97\/6, which no cited evidence supports/);
+});
+
+test('claims check rejects a hash the evidence does not contain', () => {
+  const directory = buildFixture();
+  rewriteClaim(directory, 'C-008', (claim) => {
+    claim.claim = claim.claim.replace(/[0-9a-f]{64}/, 'f'.repeat(64));
+  });
+  const result = runGuard(directory, 'check-claims.mjs');
+  assert.notEqual(result.status, 0, 'a quoted hash must exist in the evidence it cites');
+  assert.match(result.stderr, /C-008 quotes ffffffffffff…, which no cited evidence contains/);
+});
+
+test('claims check rejects a reader-facing table that drifts from the record', () => {
+  const directory = buildFixture();
+  const path = join(directory, 'CLAIMS.md');
+  writeFileSync(path, readFileSync(path, 'utf8').replace('| `synthetic-orchestration` |', '| |'));
+  const result = runGuard(directory, 'check-claims.mjs');
+  assert.notEqual(result.status, 0, 'the table must state each claim evidence level');
+  assert.match(result.stderr, /row does not state its evidence level synthetic-orchestration/);
+});
+
+test('metadata check fails closed when it cannot reach GitHub at all', () => {
+  const directory = buildFixture();
+  const result = spawnSync(process.execPath, [join(directory, 'scripts', 'check-metadata.mjs')], {
+    cwd: directory,
+    encoding: 'utf8',
+    env: { ...process.env, PATH: '/nonexistent' },
+  });
+  assert.notEqual(result.status, 0, 'a check that cannot look must answer "no", never "yes"');
+  assert.match(result.stderr, /cannot read live repository metadata .*fails closed/s);
 });
 
 test('docs check rejects a repository description that states a number without the boundary', () => {

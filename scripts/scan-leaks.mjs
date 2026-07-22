@@ -6,6 +6,9 @@ const files = execFileSync('git', ['ls-files', 'evidence'], { encoding: 'utf8' }
   .trim()
   .split('\n')
   .filter(Boolean);
+// An empty file list would make every assertion below vacuous and still print PASS. If this scan
+// has nothing to look at, that is a broken release, not a clean one.
+assert.ok(files.length > 0, 'no tracked evidence files to scan');
 const patterns = [
   { name: 'absolute macOS home path', regex: /\/Users\/[A-Za-z0-9._-]+\// },
   { name: 'GitHub token', regex: /gh[opsu]_[A-Za-z0-9_]{20,}/ },

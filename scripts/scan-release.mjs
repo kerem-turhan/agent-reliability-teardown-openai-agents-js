@@ -66,21 +66,56 @@ for (const file of tracked) {
     assert.ok(!pattern.regex.test(content), `${pattern.name} found in ${file}`);
   }
 }
-let history = execFileSync('git', ['log', '-p', '--all', '--format='], {
-  encoding: 'utf8',
-  maxBuffer: 50 * 1024 * 1024,
-});
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 });
+
 // Historical sanitizer fixtures are known synthetic values, not credentials. New tracked files
 // construct them dynamically so ordinary secret scanners do not produce the same false positive.
+// The neutralization is anchored at a token boundary: a plain substring replacement would also
+// blind the scanner to a real credential that merely starts with a fixture, which is the same
+// silent-pass failure this file exists to prevent.
 const knownSyntheticFixtures = [
   ['ghp', '_', 'abcdefghijklmnopqrstuvwxyz'].join(''),
   ['sk', '-', 'abcdefghijklmnop'].join(''),
 ];
-for (const fixture of knownSyntheticFixtures) {
-  history = history.split(fixture).join('<KNOWN_SYNTHETIC_FIXTURE>');
+const neutralizeKnownFixtures = (text) =>
+  knownSyntheticFixtures.reduce(
+    (current, fixture) => current.replace(new RegExp(`${fixture}(?![A-Za-z0-9_-])`, 'g'), '<KNOWN_SYNTHETIC_FIXTURE>'),
+    text,
+  );
+
+// Git history is three surfaces, not one, and each needs its own policy.
+//
+// 1. Diffs. Every pattern applies, including the email pattern that an earlier `patterns.slice(0, 4)`
+//    silently dropped — a lead or client address committed and later deleted would have passed.
+// 2. Commit and tag identities. `git log --format=` strips exactly the headers that carry them, so
+//    author and committer identity were never scanned at all. They are emails by construction, so
+//    an allowlist is the right shape here rather than a prohibition: only GitHub noreply addresses
+//    may appear, which is what a personal address committed by mistake would fail.
+// 3. Message and ref text. Subjects, bodies, tag messages and ref names, scanned with every pattern.
+const diffHistory = neutralizeKnownFixtures(git('log', '-p', '--all', '--format='));
+for (const pattern of patterns) {
+  assert.ok(!pattern.regex.test(diffHistory), `${pattern.name} found in Git history`);
 }
-for (const pattern of [...patterns.slice(0, 4), ...forbiddenNamePatterns]) {
-  assert.ok(!pattern.regex.test(history), `${pattern.name} found in Git history`);
+
+const releaseIdentity = /^[A-Za-z0-9._+-]+@users\.noreply\.github\.com$/;
+const identities = [
+  ...git('log', '--all', '--format=%ae%n%ce').split('\n'),
+  ...git('for-each-ref', '--format=%(taggeremail)').split('\n'),
+]
+  .map((line) => line.trim().replace(/^<|>$/g, ''))
+  .filter(Boolean);
+for (const identity of new Set(identities)) {
+  assert.ok(
+    releaseIdentity.test(identity),
+    `commit or tag identity ${identity} is not a GitHub noreply release identity`,
+  );
+}
+
+const messageHistory = neutralizeKnownFixtures(
+  git('log', '--all', '--format=%an%n%cn%n%s%n%b') + git('for-each-ref', '--format=%(refname)%n%(contents)'),
+);
+for (const pattern of patterns) {
+  assert.ok(!pattern.regex.test(messageHistory), `${pattern.name} found in Git commit or tag metadata`);
 }
 assert.equal(
   execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(),
